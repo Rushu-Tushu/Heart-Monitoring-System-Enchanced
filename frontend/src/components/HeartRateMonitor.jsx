@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect, useRef, useContext } from "react"
 import { Heart, Activity, Droplet, Wifi, WifiOff, Fingerprint, AlertCircle, LogOut } from "lucide-react"
 import { AuthContext } from "../context/AuthContext"
