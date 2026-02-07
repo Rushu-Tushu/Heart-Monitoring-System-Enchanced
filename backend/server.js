@@ -2,25 +2,21 @@ import express, { json } from "express";
 import { connect } from "mongoose";
 import cors from "cors";
 import { config } from "dotenv";
-import authRoutes from "./routes/auth.js"; // Updated to include .js extension
-import readingRoutes from "./routes/readings.js"; // Updated to include .js extension
-
-// Load environment variables
+import authRoutes from "./routes/auth.js"; 
+import readingRoutes from "./routes/readings.js"; 
 config();
 
-// Create Express app
 const app = express();
 
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173", // Vite default port
+    origin: "http://localhost:5173",
     credentials: true,
   }),
 );
 app.use(json());
 
-// Connect to MongoDB
 connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Could not connect to MongoDB", err));
@@ -35,8 +31,7 @@ app.use((err, req, res, next) => {
   res.status(500).send({ message: "Something went wrong!" });
 });
 
-// Start server
-const PORT = process.env.PORT; // Updated to use the correct port
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
