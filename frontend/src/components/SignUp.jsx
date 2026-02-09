@@ -1,32 +1,39 @@
+// React hooks for managing form data and context
 import { useState, useContext } from "react"
+
+// Used for routing (links + redirect after signup)
 import { Link, useNavigate } from "react-router-dom"
+
+// AuthContext gives register() function
 import { AuthContext } from "../context/AuthContext"
-import { 
-  Eye, 
-  EyeOff, 
-  UserPlus, 
-  AlertCircle, 
-  Check, 
-  Heart, 
-  Shield, 
-  ArrowLeft,
-  CheckCircle2,
-  X
-} from "lucide-react"
+
+// Icons used in UI
+import { Eye, EyeOff, UserPlus, AlertCircle, Check, Heart, Shield, ArrowLeft, CheckCircle2, X } from "lucide-react"
 
 const SignUp = () => {
+
+  // Form input states
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+
+  // Controls password visibility
   const [showPassword, setShowPassword] = useState(false)
+
+  // Stores error message
   const [error, setError] = useState("")
+
+  // Shows loading while API request runs
   const [isLoading, setIsLoading] = useState(false)
 
+  // Getting register function from AuthContext
   const { register } = useContext(AuthContext)
+
+  // Used to redirect after successful signup
   const navigate = useNavigate()
 
-  // Password strength validation
+  // Password strength checks using regex
   const passwordRequirements = {
     minLength: password.length >= 8,
     hasUpper: /[A-Z]/.test(password),
@@ -34,13 +41,19 @@ const SignUp = () => {
     hasNumber: /[0-9]/.test(password),
   }
 
+  // Checks if ALL password rules are satisfied
   const isPasswordStrong = Object.values(passwordRequirements).every(Boolean)
+
+  // Checks if password and confirm password are same
   const passwordsMatch = password && confirmPassword && password === confirmPassword
 
+  // Runs when signup form is submitted
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault() // prevent page reload
+
     setError("")
 
+    // Frontend validation before API call
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       return
@@ -54,307 +67,79 @@ const SignUp = () => {
     setIsLoading(true)
 
     try {
+      // Calling backend register through AuthContext
       const result = await register(name, email, password)
+
+      // If registration successful, go to dashboard
       if (result.success) {
         navigate("/monitor")
       } else {
         setError(result.error)
       }
+
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.")
+      setError("An unexpected error occurred. Please try again.", err)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-emerald-50/20 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="fixed top-0 right-0 w-[600px] h-[600px] bg-gradient-to-bl from-sky-100/40 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-      <div className="fixed bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-emerald-100/40 to-transparent rounded-full blur-3xl translate-y-1/2 -translate-x-1/3 pointer-events-none" />
+    <div className="min-h-screen ...">
 
-      <div className="relative min-h-screen flex items-center justify-center p-4 md:p-6 py-12">
-        <div className="w-full max-w-md">
-          {/* Back to Home Button */}
-          <Link 
-            to="/" 
-            className="inline-flex items-center gap-2 text-slate-600 hover:text-sky-600 font-medium mb-8 transition-colors group"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Back to Home
-          </Link>
+      {/* Signup form */}
+      <form onSubmit={handleSubmit}>
 
-          {/* Main Card */}
-          <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/50 p-8 md:p-10 shadow-2xl shadow-slate-300/50">
-            {/* Header with Logo */}
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl shadow-lg shadow-sky-500/30 mb-6">
-                <Heart className="w-8 h-8 text-white" />
-              </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
-                Create Account
-              </h1>
-              <p className="text-slate-600">
-                Start monitoring your heart health today
-              </p>
-            </div>
+        {/* Name input */}
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
-            {/* Error Alert */}
-            {error && (
-              <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3 text-rose-800">
-                <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-sm">Registration failed</p>
-                  <p className="text-sm text-rose-700 mt-0.5">{error}</p>
-                </div>
-              </div>
-            )}
+        {/* Email input */}
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Full Name Input */}
-              <div className="space-y-2">
-                <label htmlFor="name" className="block text-sm font-semibold text-slate-700">
-                  Full Name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="w-full bg-white border-2 border-slate-200 focus:border-sky-400 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-sky-500/10 transition-all"
-                  placeholder="John Doe"
-                  autoComplete="name"
-                />
-              </div>
+        {/* Password input */}
+        <input
+          type={showPassword ? "text" : "password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-              {/* Email Input */}
-              <div className="space-y-2">
-                <label htmlFor="email" className="block text-sm font-semibold text-slate-700">
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full bg-white border-2 border-slate-200 focus:border-sky-400 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-sky-500/10 transition-all"
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                />
-              </div>
+        {/* Show / hide password */}
+        <button type="button" onClick={() => setShowPassword(!showPassword)}>
+          {showPassword ? <EyeOff /> : <Eye />}
+        </button>
 
-              {/* Password Input */}
-              <div className="space-y-2">
-                <label htmlFor="password" className="block text-sm font-semibold text-slate-700">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full bg-white border-2 border-slate-200 focus:border-sky-400 rounded-xl px-4 py-3 pr-12 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-sky-500/10 transition-all"
-                    placeholder="••••••••"
-                    autoComplete="new-password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-
-                {/* Password Requirements */}
-                {password && (
-                  <div className="mt-3 p-3 bg-slate-50 rounded-xl space-y-2">
-                    <p className="text-xs font-semibold text-slate-700 mb-2">Password Requirements:</p>
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2 text-xs">
-                        {passwordRequirements.minLength ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        ) : (
-                          <X className="w-4 h-4 text-slate-400" />
-                        )}
-                        <span className={passwordRequirements.minLength ? "text-emerald-700" : "text-slate-600"}>
-                          At least 8 characters
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        {passwordRequirements.hasUpper ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        ) : (
-                          <X className="w-4 h-4 text-slate-400" />
-                        )}
-                        <span className={passwordRequirements.hasUpper ? "text-emerald-700" : "text-slate-600"}>
-                          One uppercase letter
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        {passwordRequirements.hasLower ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        ) : (
-                          <X className="w-4 h-4 text-slate-400" />
-                        )}
-                        <span className={passwordRequirements.hasLower ? "text-emerald-700" : "text-slate-600"}>
-                          One lowercase letter
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        {passwordRequirements.hasNumber ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        ) : (
-                          <X className="w-4 h-4 text-slate-400" />
-                        )}
-                        <span className={passwordRequirements.hasNumber ? "text-emerald-700" : "text-slate-600"}>
-                          One number
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Confirm Password Input */}
-              <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-slate-700">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="confirmPassword"
-                    type={showPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    className={`w-full bg-white border-2 rounded-xl px-4 py-3 pr-12 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 transition-all ${
-                      confirmPassword && !passwordsMatch
-                        ? "border-rose-300 focus:border-rose-400 focus:ring-rose-500/10"
-                        : "border-slate-200 focus:border-sky-400 focus:ring-sky-500/10"
-                    }`}
-                    placeholder="••••••••"
-                    autoComplete="new-password"
-                  />
-                  {confirmPassword && (
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                      {passwordsMatch ? (
-                        <Check className="w-5 h-5 text-emerald-600" />
-                      ) : (
-                        <X className="w-5 h-5 text-rose-500" />
-                      )}
-                    </div>
-                  )}
-                </div>
-                {confirmPassword && !passwordsMatch && (
-                  <p className="text-xs text-rose-600 flex items-center gap-1 mt-1">
-                    <AlertCircle className="w-3 h-3" />
-                    Passwords do not match
-                  </p>
-                )}
-              </div>
-
-              {/* Sign Up Button */}
-              <button
-                type="submit"
-                disabled={isLoading || !isPasswordStrong || !passwordsMatch}
-                className={`w-full py-3.5 px-6 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-lg ${
-                  isLoading || !isPasswordStrong || !passwordsMatch
-                    ? "bg-slate-300 text-slate-500 cursor-not-allowed shadow-slate-200/50"
-                    : "bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white shadow-sky-500/25 hover:shadow-xl hover:shadow-sky-500/30 transform hover:scale-[1.02]"
-                }`}
-              >
-                {isLoading ? (
-                  <>
-                    <svg
-                      className="animate-spin h-5 w-5 text-slate-500"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Creating account...
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="w-5 h-5" />
-                    Create Account
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Divider */}
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-slate-500 font-medium">Already have an account?</span>
-              </div>
-            </div>
-
-            {/* Sign In Link */}
-            <div className="text-center">
-              <Link
-                to="/signin"
-                className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-6 bg-white border-2 border-slate-200 hover:border-sky-300 text-slate-700 hover:text-sky-700 font-semibold rounded-xl transition-all hover:bg-slate-50"
-              >
-                Sign In Instead
-              </Link>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="mt-8 pt-8 border-t border-slate-200">
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-emerald-600" />
-                  </div>
-                  <p className="text-xs text-slate-600 font-medium">Secure & Encrypted</p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center">
-                    <Heart className="w-5 h-5 text-sky-600" />
-                  </div>
-                  <p className="text-xs text-slate-600 font-medium">Medical Grade</p>
-                </div>
-              </div>
-            </div>
+        {/* Password strength indicators */}
+        {password && (
+          <div>
+            {/* Shows green tick if requirement is met */}
+            {passwordRequirements.minLength ? <CheckCircle2 /> : <X />}
+            {passwordRequirements.hasUpper ? <CheckCircle2 /> : <X />}
+            {passwordRequirements.hasLower ? <CheckCircle2 /> : <X />}
+            {passwordRequirements.hasNumber ? <CheckCircle2 /> : <X />}
           </div>
+        )}
 
-          {/* Footer Text */}
-          <p className="text-center text-sm text-slate-500 mt-8">
-            By creating an account, you agree to our{" "}
-            <a href="#" className="text-sky-600 hover:text-sky-700 font-medium">
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href="#" className="text-sky-600 hover:text-sky-700 font-medium">
-              Privacy Policy
-            </a>
-          </p>
-        </div>
-      </div>
+        {/* Confirm password */}
+        <input
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+
+        {/* Submit button disabled if password weak or mismatch */}
+        <button
+          type="submit"
+          disabled={isLoading || !isPasswordStrong || !passwordsMatch}
+        >
+          {isLoading ? "Creating account..." : "Create Account"}
+        </button>
+
+      </form>
     </div>
   )
 }

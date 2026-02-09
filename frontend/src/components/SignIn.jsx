@@ -55,6 +55,7 @@ const SignIn = () => {
 
     } catch (err) {
       // For unexpected frontend errors
+      console.error("Login error:", err)
       setError("An unexpected error occurred")
     } finally {
       // Stop loading in both success & failure
